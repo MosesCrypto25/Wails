@@ -35,38 +35,41 @@ func (a *App) startup(ctx context.Context) {
 }
 
 // EncryptFileStep 是一个带有进度更新的加密函数
-func (a *App) EncryptFileStep(inputPath, outputPath, password string, progress func(float64)) error {
+func (a *App) EncryptFileStep(inputPath, outputPath, password string) error {
 	// 读取文件
 	plaintext, err := os.ReadFile(inputPath)
 	if err != nil {
 		return fmt.Errorf("读取文件失败: %w", err)
 	}
-	progress(0.1) // 10% progress
+	runtime.EventsEmit(a.ctx, "progress", 0.1) // 10% progress
 
+	// 生成盐
 	salt := make([]byte, 16)
 	if _, err := rand.Read(salt); err != nil {
 		return fmt.Errorf("生成盐失败: %w", err)
 	}
-	progress(0.2) // 20% progress
+	runtime.EventsEmit(a.ctx, "progress", 0.2) // 20% progress
 
+	// 生成IV
 	iv := make([]byte, aes.BlockSize)
 	if _, err := rand.Read(iv); err != nil {
 		return fmt.Errorf("生成IV失败: %w", err)
 	}
-	progress(0.3) // 30% progress
+	runtime.EventsEmit(a.ctx, "progress", 0.3) // 30% progress
+
 	key := pbkdf2.Key([]byte(password), salt, 100000, 32, sha256.New)
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return fmt.Errorf("创建密码块失败: %w", err)
 	}
-	progress(0.4) // 40% progress
+	runtime.EventsEmit(a.ctx, "progress", 0.4) // 40% progress
 
 	plaintext = pkcs7Pad(plaintext, aes.BlockSize)
 
 	ciphertext := make([]byte, len(plaintext))
 	mode := cipher.NewCBCEncrypter(block, iv)
 	mode.CryptBlocks(ciphertext, plaintext)
-	progress(0.8) // 80% progress
+	runtime.EventsEmit(a.ctx, "progress", 0.8) // 80% progress
 
 	outputFile, err := os.Create(outputPath)
 	if err != nil {
@@ -83,11 +86,11 @@ func (a *App) EncryptFileStep(inputPath, outputPath, password string, progress f
 	if _, err := outputFile.Write(ciphertext); err != nil {
 		return fmt.Errorf("写入加密数据失败: %w", err)
 	}
-	progress(1.0) // 100% progress
+
+	runtime.EventsEmit(a.ctx, "progress", 1.0) // 100% progress
 
 	return nil
 }
-
 func (a *App) DecryptFile(inputPath, outputPath, password string) error {
 	ciphertext, err := os.ReadFile(inputPath)
 	if err != nil {
