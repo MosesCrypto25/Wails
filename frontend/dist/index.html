@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>文件加密工具</title>
+    <meta charset="UTF-8">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { padding: 20px; }
+        .alert { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="mb-4">文件加密/解密</h2>
+        <div class="mb-3">
+            <label class="form-label">密码</label>
+            <input type="password" class="form-control" id="password">
+        </div>
+        <div class="d-grid gap-2">
+            <button class="btn btn-primary" onclick="handleEncrypt()">加密文件</button>
+            <button class="btn btn-success" onclick="handleDecrypt()">解密文件</button>
+        </div>
+        <div class="progress mt-3">
+            <div class="progress-bar" role="progressbar" style="width: 0%;" id="progressBar"></div>
+        </div>
+        <div id="result" class="mt-3"></div>
+    </div>
+
+    <script>
+        async function handleEncrypt() {
+            const password = document.getElementById('password').value;
+            if (!password) return showResult('请输入密码', 'danger');
+
+            try {
+                const inputPath = await window.go.main.App.SelectFile();
+                if (!inputPath) return;
+
+                const outputPath = inputPath + '.enc';
+                await window.go.main.App.EncryptFileStep(inputPath, outputPath, password, updateProgressBar);
+                showResult(`加密成功！保存为: ${outputPath}`, 'success');
+            } catch (error) {
+                showResult(`加密失败: ${error}`, 'danger');
+            }
+        }
+
+        async function handleDecrypt() {
+            const password = document.getElementById('password').value;
+            if (!password) return showResult('请输入密码', 'danger');
+
+            try {
+                const inputPath = await window.go.main.App.SelectFile();
+                if (!inputPath) return;
+
+                const outputPath = inputPath.replace(/\.enc$/, '') + '.dec';
+                await window.go.main.App.DecryptFile(inputPath, outputPath, password);
+                showResult(`解密成功！保存为: ${outputPath}`, 'success');
+            } catch (error) {
+                showResult(`解密失败: ${error}`, 'danger');
+            }
+        }
+
+        function showResult(message, type) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `
+                <div class="alert alert-${type} alert-dismissible">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+        }
+
+        function updateProgressBar(progress) {
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = progress * 100 + '%';
+            progressBar.innerText = Math.round(progress * 100) + '%';
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

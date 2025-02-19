@@ -1,0 +1,35 @@
+{
+
+  "name": "filecrypto",
+  
+  "outputfilename": "filecrypto",
+  
+  "frontend:install": "npm install",
+  
+  "frontend:build": "npm run build",
+  
+  "frontend:dev:watcher": "npm run dev",
+  
+  "frontend:dev:serverUrl": "http://localhost:34115",
+  
+  "author": {
+  
+  "name": "Your Name",
+  
+  "email": "you@example.com"
+  
+  },
+  
+  "info": {
+  
+  "companyName": "Example",
+  
+  "productName": "FileCrypto",
+  
+  "productVersion": "1.0.0",
+  
+  "copyright": "Copyright..."
+  
+  }
+  
+  }
