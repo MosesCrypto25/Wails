@@ -41,13 +41,13 @@ func (a *App) EncryptFileStep(inputPath, outputPath, password string, progress f
 	if err != nil {
 		return fmt.Errorf("读取文件失败: %w", err)
 	}
-	//progress(0.1) // 10% progress
+	progress(0.1) // 10% progress
 
 	salt := make([]byte, 16)
 	if _, err := rand.Read(salt); err != nil {
 		return fmt.Errorf("生成盐失败: %w", err)
 	}
-	//progress(0.2) // 20% progress
+	progress(0.2) // 20% progress
 
 	iv := make([]byte, aes.BlockSize)
 	if _, err := rand.Read(iv); err != nil {
@@ -59,7 +59,7 @@ func (a *App) EncryptFileStep(inputPath, outputPath, password string, progress f
 	if err != nil {
 		return fmt.Errorf("创建密码块失败: %w", err)
 	}
-	//progress(0.4) // 40% progress
+	progress(0.4) // 40% progress
 
 	plaintext = pkcs7Pad(plaintext, aes.BlockSize)
 
