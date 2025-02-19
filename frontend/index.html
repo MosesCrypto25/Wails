@@ -7,6 +7,7 @@
     <style>
         body { padding: 20px; }
         .alert { margin-top: 20px; }
+        .progress { display: none; } /* 初始隐藏进度条 */
     </style>
 </head>
 <body>
@@ -20,7 +21,7 @@
             <button class="btn btn-primary" onclick="handleEncrypt()">加密文件</button>
             <button class="btn btn-success" onclick="handleDecrypt()">解密文件</button>
         </div>
-        <div class="progress mt-3">
+        <div class="progress mt-3" display="none">
             <div class="progress-bar" role="progressbar" style="width: 0%;" id="progressBar"></div>
         </div>
         <div id="result" class="mt-3"></div>
@@ -36,14 +37,17 @@
             if (!password) return showResult('请输入密码', 'danger');
 
             try {
+                showProgressBar(); // 显示进度条
                 const inputPath = await window.go.main.App.SelectFile();
                 if (!inputPath) return;
 
                 const outputPath = inputPath + '.enc';
-                await window.go.main.App.EncryptFileStep(inputPath, outputPath, password);
+                await window.go.main.App.EncryptFileStep(inputPath, outputPath, password, updateProgressBar);
                 showResult(`加密成功！保存为: ${outputPath}`, 'success');
             } catch (error) {
                 showResult(`加密失败: ${error}`, 'danger');
+            } finally {
+                hideProgressBar(); // 隐藏进度条
             }
         }
 
@@ -52,15 +56,28 @@
             if (!password) return showResult('请输入密码', 'danger');
 
             try {
+                showProgressBar(); // 显示进度条
                 const inputPath = await window.go.main.App.SelectFile();
                 if (!inputPath) return;
 
                 const outputPath = inputPath.replace(/\.enc$/, '') + '.dec';
-                await window.go.main.App.DecryptFileStep(inputPath, outputPath, password);
+                await window.go.main.App.DecryptFileStep(inputPath, outputPath, password, updateProgressBar);
                 showResult(`解密成功！保存为: ${outputPath}`, 'success');
             } catch (error) {
                 showResult(`解密失败: ${error}`, 'danger');
+            } finally {
+                hideProgressBar(); // 隐藏进度条
             }
+        }
+
+        function showProgressBar() {
+            const progressBarContainer = document.querySelector('.progress');
+            progressBarContainer.style.display = 'block';
+        }
+
+        function hideProgressBar() {
+            const progressBarContainer = document.querySelector('.progress');
+            progressBarContainer.style.display = 'none';
         }
 
         function showResult(message, type) {
