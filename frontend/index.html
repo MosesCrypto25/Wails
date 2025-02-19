@@ -37,11 +37,12 @@
             if (!password) return showResult('请输入密码', 'danger');
 
             try {
-                showProgressBar(); // 显示进度条
+                
                 const inputPath = await window.go.main.App.SelectFile();
                 if (!inputPath) return;
 
                 const outputPath = inputPath + '.enc';
+                showProgressBar(); // 显示进度条
                 await window.go.main.App.EncryptFileStep(inputPath, outputPath, password);
                 showResult(`加密成功！保存为: ${outputPath}`, 'success');
             } catch (error) {
@@ -56,11 +57,12 @@
             if (!password) return showResult('请输入密码', 'danger');
 
             try {
-                showProgressBar(); // 显示进度条
+                
                 const inputPath = await window.go.main.App.SelectFile();
                 if (!inputPath) return;
 
                 const outputPath = inputPath.replace(/\.enc$/, '') + '.dec';
+                showProgressBar(); // 显示进度条
                 await window.go.main.App.DecryptFileStep(inputPath, outputPath, password);
                 showResult(`解密成功！保存为: ${outputPath}`, 'success');
             } catch (error) {
