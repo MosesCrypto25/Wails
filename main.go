@@ -59,7 +59,7 @@ func (a *App) EncryptFileStep(inputPath, outputPath, password string, progress f
 	if err != nil {
 		return fmt.Errorf("创建密码块失败: %w", err)
 	}
-	progress(0.4) // 40% progress
+	//progress(0.4) // 40% progress
 
 	plaintext = pkcs7Pad(plaintext, aes.BlockSize)
 
