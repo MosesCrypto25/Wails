@@ -40,7 +40,7 @@
                 if (!inputPath) return;
 
                 const outputPath = inputPath + '.enc';
-                await window.go.main.App.EncryptFileStep(inputPath, outputPath, password, updateProgressBar);
+                await window.go.main.App.EncryptFileStep(inputPath, outputPath, password);
                 showResult(`加密成功！保存为: ${outputPath}`, 'success');
             } catch (error) {
                 showResult(`加密失败: ${error}`, 'danger');
