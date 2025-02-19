@@ -1,2 +1,4 @@
 build/bin
 node_modules
+frontend/wailsjs
+frontend/dist/index.html
