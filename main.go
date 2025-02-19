@@ -91,25 +91,27 @@ func (a *App) EncryptFileStep(inputPath, outputPath, password string) error {
 
 	return nil
 }
-func (a *App) DecryptFile(inputPath, outputPath, password string) error {
+func (a *App) DecryptFileStep(inputPath, outputPath, password string) error {
 	ciphertext, err := os.ReadFile(inputPath)
 	if err != nil {
 		return fmt.Errorf("读取加密文件失败: %w", err)
 	}
+	runtime.EventsEmit(a.ctx, "progress", 0.1) // 10% progress
 
 	if len(ciphertext) < 32 {
 		return errors.New("文件格式无效")
 	}
-
 	salt := ciphertext[:16]
 	iv := ciphertext[16:32]
 	ciphertext = ciphertext[32:]
+	runtime.EventsEmit(a.ctx, "progress", 0.2) // 20% progress
 
 	key := pbkdf2.Key([]byte(password), salt, 100000, 32, sha256.New)
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return fmt.Errorf("创建密码块失败: %w", err)
 	}
+	runtime.EventsEmit(a.ctx, "progress", 0.3) // 30% progress
 
 	if len(ciphertext)%aes.BlockSize != 0 {
 		return errors.New("加密数据长度无效")
@@ -118,15 +120,18 @@ func (a *App) DecryptFile(inputPath, outputPath, password string) error {
 	mode := cipher.NewCBCDecrypter(block, iv)
 	plaintext := make([]byte, len(ciphertext))
 	mode.CryptBlocks(plaintext, ciphertext)
+	runtime.EventsEmit(a.ctx, "progress", 0.7) // 70% progress
 
 	plaintext, err = pkcs7Unpad(plaintext)
 	if err != nil {
 		return fmt.Errorf("解密失败: %w", err)
 	}
+	runtime.EventsEmit(a.ctx, "progress", 0.9) // 90% progress
 
 	if err := os.WriteFile(outputPath, plaintext, 0644); err != nil {
 		return fmt.Errorf("写入解密文件失败: %w", err)
 	}
+	runtime.EventsEmit(a.ctx, "progress", 1.0) // 100% progress
 
 	return nil
 }
